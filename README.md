@@ -28,3 +28,22 @@
 
 ---
 
+### Установка зависимостей
+
+1. Клонируйте репозиторий:
+```bash
+git clone https://github.com/MIFCoding/Demo_Days_2025_RGBTester.git
+cd RGBTester
+```
+
+2. Установите зависимости из requirements.txt:
+```bash
+pip install -r requirements.txt
+```
+
+Запуск:
+```bash
+python main.py
+```
+
+---
