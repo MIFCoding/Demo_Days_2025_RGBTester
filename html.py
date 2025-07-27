@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from datetime import datetime
 
 from color import *
@@ -398,7 +399,7 @@ def generate_html_report(results):
     """
     
     # Сохранение отчета
-    with open(f"reports/{filename}", "w", encoding="utf-8") as f:
+    with open(filename, "w", encoding="utf-8") as f:
         f.write(html_content)
     
     print(f"\n{COLOR_GREEN}Отчёт сохранён как: {os.path.abspath(filename)}{COLOR_RESET}")
