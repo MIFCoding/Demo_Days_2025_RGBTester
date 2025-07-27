@@ -1,6 +1,6 @@
 # 🎚️ Audio Codec Testing System
 
-![alt text](https://ibb.co/3yHhbxVY)
+<a href="https://imgbb.com/"><img src="https://i.ibb.co/bgndV4YR/image.png" alt="image" border="0"></a>
 
 ## 📌 Table of Contents
 - [Features](#-features)
