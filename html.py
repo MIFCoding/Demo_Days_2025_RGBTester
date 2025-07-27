@@ -6,12 +6,18 @@ from color import *
 def generate_html_report(results):
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     filename = f"test_report_{timestamp}.html"
-
+    
+    def truncate(text, max_len=300):
+        if not isinstance(text, str):
+            text = str(text)
+        return text[:max_len] + ('...' if len(text) > max_len else '')
+    
     html_content = f"""
     <!DOCTYPE html>
     <html lang="ru">
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Отчет тестирования аудио кодека</title>
         <style>
             :root {{
@@ -20,6 +26,7 @@ def generate_html_report(results):
                 --magenta: #9C27B0;
                 --red: #F44336;
                 --gray: #f0f0f0;
+                --dark: #2c3e50;
             }}
             
             * {{
@@ -32,6 +39,7 @@ def generate_html_report(results):
                 padding: 20px;
                 background-color: #fafafa;
                 color: #333;
+                line-height: 1.6;
             }}
             
             .container {{
@@ -46,9 +54,9 @@ def generate_html_report(results):
                 border-bottom: 1px solid #ddd;
             }}
             
-            h1 {{
-                color: #2c3e50;
-                margin-bottom: 10px;
+            h1, h2, h3, h4 {{
+                color: var(--dark);
+                margin-top: 0;
             }}
             
             .summary {{
@@ -80,7 +88,7 @@ def generate_html_report(results):
             }}
             
             .accordion-header {{
-                background: #2c3e50;
+                background: var(--dark);
                 color: white;
                 padding: 15px 20px;
                 cursor: pointer;
@@ -114,6 +122,25 @@ def generate_html_report(results):
                 cursor: pointer;
                 display: flex;
                 justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 10px;
+            }}
+            
+            .string-info {{
+                flex: 1;
+                min-width: 0;
+            }}
+            
+            .original-text {{
+                font-family: monospace;
+                background: #f5f5f5;
+                padding: 2px 5px;
+                border-radius: 3px;
+                display: inline-block;
+                max-width: 100%;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }}
             
             .test-results {{
@@ -128,6 +155,27 @@ def generate_html_report(results):
                 border-radius: 4px;
                 border-left: 3px solid;
                 background: #f9f9f9;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+            }}
+            
+            .text-comparison {{
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+                margin: 10px 0;
+            }}
+            
+            .decoded-text {{
+                font-family: monospace;
+                background: #f0f8ff;
+                padding: 2px 5px;
+                border-radius: 3px;
+                display: inline-block;
+                max-width: 100%;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }}
             
             .percent {{
@@ -135,20 +183,17 @@ def generate_html_report(results):
                 font-size: 1.1em;
             }}
             
-            .success {{
-                color: var(--green);
-            }}
+            .success {{ color: var(--green); }}
+            .warning {{ color: var(--yellow); }}
+            .danger {{ color: var(--red); }}
+            .critical {{ color: var(--magenta); }}
             
-            .warning {{
-                color: var(--yellow);
-            }}
-            
-            .danger {{
+            .error {{
                 color: var(--red);
-            }}
-            
-            .critical {{
-                color: var(--magenta);
+                font-weight: bold;
+                background: #ffebee;
+                padding: 2px 5px;
+                border-radius: 3px;
             }}
             
             .diff-easy {{ border-color: var(--green); }}
@@ -156,9 +201,14 @@ def generate_html_report(results):
             .diff-hard {{ border-color: var(--magenta); }}
             .diff-extreme {{ border-color: var(--red); }}
             
-            .error {{
-                color: var(--red);
-                font-weight: bold;
+            @media (max-width: 768px) {{
+                .test-results {{
+                    grid-template-columns: 1fr;
+                }}
+                
+                .summary-grid {{
+                    grid-template-columns: 1fr;
+                }}
             }}
         </style>
     </head>
@@ -236,8 +286,8 @@ def generate_html_report(results):
             html_content += f"""
             <div class="string-card">
                 <div class="string-header" onclick="toggleString('string-{group}-{i}')">
-                    <div>
-                        <strong>Строка #{i+1}:</strong> {string_data['original']}
+                    <div class="string-info">
+                        <strong>Строка #{i+1}:</strong> <span class="original-text" title="{string_data['original']}">{truncate(string_data['original'])}</span>
                     </div>
                     <div class="percent {str_color_class}">{success_rate_str:.0%}</div>
                 </div>
@@ -250,7 +300,7 @@ def generate_html_report(results):
                     html_content += f"""
                     <div class="test-card">
                         <h4>Чистый сигнал</h4>
-                        <div class="error">Ошибка: {string_data['clean']['error']}</div>
+                        <div class="error">Ошибка: {truncate(string_data['clean']['error'])}</div>
                     </div>
                     """
                 else:
@@ -264,7 +314,10 @@ def generate_html_report(results):
                     html_content += f"""
                     <div class="test-card">
                         <h4>Чистый сигнал</h4>
-                        <div><strong>Декодировано:</strong> {string_data['clean']['decoded']}</div>
+                        <div class="text-comparison">
+                            <div><strong>Оригинал:</strong> <span class="original-text" title="{string_data['original']}">{truncate(string_data['original'])}</span></div>
+                            <div><strong>Декодировано:</strong> <span class="decoded-text" title="{string_data['clean']['decoded']}">{truncate(string_data['clean']['decoded'])}</span></div>
+                        </div>
                         <div><strong>Сходство:</strong> <span class="percent {color_class}">{sim:.1%}</span></div>
                         <div><strong>Статус:</strong> {'✅ Успех' if string_data['clean']['success'] else '❌ Ошибка'}</div>
                     </div>
@@ -281,7 +334,7 @@ def generate_html_report(results):
                     html_content += f"""
                     <div class="test-card {diff_class}">
                         <h4>{noise['name']} ({noise['params']})</h4>
-                        <div class="error">Ошибка: {noise['error']}</div>
+                        <div class="error">Ошибка: {truncate(noise['error'])}</div>
                     </div>
                     """
                 else:
@@ -295,7 +348,10 @@ def generate_html_report(results):
                     html_content += f"""
                     <div class="test-card {diff_class}">
                         <h4>{noise['name']} ({noise['params']})</h4>
-                        <div><strong>Декодировано:</strong> {noise['decoded']}</div>
+                        <div class="text-comparison">
+                            <div><strong>Оригинал:</strong> <span class="original-text" title="{string_data['original']}">{truncate(string_data['original'])}</span></div>
+                            <div><strong>Декодировано:</strong> <span class="decoded-text" title="{noise['decoded']}">{truncate(noise['decoded'])}</span></div>
+                        </div>
                         <div><strong>Сходство:</strong> <span class="percent {color_class}">{sim:.1%}</span></div>
                         <div><strong>Статус:</strong> {'✅ Успех' if noise['success'] else '❌ Ошибка'}</div>
                     </div>
@@ -340,8 +396,10 @@ def generate_html_report(results):
     </body>
     </html>
     """
-
+    
+    # Сохранение отчета
     with open(f"reports/{filename}", "w", encoding="utf-8") as f:
         f.write(html_content)
     
     print(f"\n{COLOR_GREEN}Отчёт сохранён как: {os.path.abspath(filename)}{COLOR_RESET}")
+    return filename
