@@ -1,6 +1,6 @@
 # 🎚️ Audio Codec Testing System
 
-![System Screenshot](https://via.placeholder.com/800x400?text=Audio+Codec+Tester+UI)
+![alt text](https://ibb.co/3yHhbxVY)
 
 ## 📌 Table of Contents
 - [Features](#-features)
