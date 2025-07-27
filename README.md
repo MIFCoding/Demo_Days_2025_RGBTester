@@ -41,6 +41,8 @@ cd RGBTester
 pip install -r requirements.txt
 ```
 
+---
+
 ### Запуск:
 ```bash
 python main.py
