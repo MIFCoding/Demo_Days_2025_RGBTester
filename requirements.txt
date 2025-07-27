@@ -2,4 +2,3 @@ aiohttp
 numpy
 scipy
 Levenshtein
-Jinja2
